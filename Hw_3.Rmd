@@ -1,0 +1,290 @@
+---
+title: "Hw 3"
+author: "Jaxon Lara"
+date: "2/10/2025"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+gasprices = read.csv("GasPrices.csv")
+sclass = read.csv("sclass.csv")
+nbcPilotSurvey = read.csv("nbc_pilotsurvey.csv")
+ebay = read.csv("ebay.csv")
+```
+
+```{r, include=FALSE}
+library(mosaic)
+library(ggplot2)
+library(tidyverse)
+options(scipen=999)
+options(digits=10)
+```
+
+```{r, include=FALSE}
+#test for diff mean interpretation
+#test = tibble("Number"=c(5,10,5,10,5,10,5,10,5,10),"Identity"=c("B","A","B","A","B","A","B","A","B","A"))
+#diffmean(Number ~ Identity, data=test)
+#order of subtraction is based on alphabetical order of the identity
+#("A">"B") false
+#("B">"A") true
+#(diffmean) = mean(The identity of greatest alphabetical order) - mean(the identity of least alphabetical order)
+```
+
+# **1(A)**
+
+```{r, echo=FALSE, message=FALSE}
+gasprices_Price.Competitors = do(10000)*diffmean(Price ~ Competitors, data=resample(gasprices))
+
+ggplot(gasprices_Price.Competitors, aes(x=diffmean)) +
+geom_histogram(fill="grey15") +
+labs(title=str_wrap("Bootstrap sampling distribution for difference in
+mean gas prices between gas stations with competitors and gas stations without competitors",width=60), x="Diffmean (with competitors - without competitors)", y="Frequency", caption="Claim: gas stations charge more if they lack direct competition in sight.  \n\nEvidence: Based on the bootstrap sampling distribution I am 95% confident that the difference in   \nmean gas prices between gas stations with competitors and gas stations without competitors is   \nbetween -0.055 and 0.0087. The theory is unsupported by the evidence because 0 is within   \nthe confidence interval which describes that the confidence interval is not statistically significant.  \n\nConclusion: The theory is unsupported, not enough evidence to suggest gas stations charge   \nmore if they lack direct competition in sight.") +
+theme(panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank(),
+      panel.grid.major.y=element_line(color="grey30",linewidth=.5, linetype=1),
+      plot.caption = element_text(hjust = 0)
+      ) +
+geom_vline(xintercept=0, color=2, linewidth=1) +
+geom_vline(xintercept=0.008710269185, color=3, linewidth=1) +
+geom_vline(xintercept=-0.05494486819, color=3, linewidth=1) +
+scale_x_continuous(breaks=seq(-.1,.05,by=.01))
+```
+```{r, echo=FALSE, message=FALSE}
+#confint(gasprices_Price.Competitors, level=0.95)
+```
+
+# **1(B)**
+
+```{r, echo=FALSE, message=FALSE}
+gasprices_Price.Income_bootstrap = do(10000)*cor(Price ~ Income, data=resample(gasprices))
+
+ggplot(gasprices_Price.Income_bootstrap, aes(x=cor)) +
+geom_histogram(fill="grey15") +
+labs(title=str_wrap("Bootstrap sampling distribution for correlation between gas price and the median household income of the gas station's zip code",width=60), x="Correlation value (r)", y="Frequency", caption="Claim: The richer the area, the higher the gas prices.  \n\nEvidence: Based on the bootstrap sampling distribution I am 95% confident that the correlation   \nvalue between gas price and the median household income of the gas station's zip code is   \nbetween 0.2 and 0.57. The claim is supported by the evidence because 0 is not in   \nthe confidence interval which describes that the confidence interval is statistically significant.  \n\nConclusion: The theory is supported, there is enough evidence to suggest the richer the area   \nthe higher the gas prices.") +
+theme(panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank(),
+      panel.grid.major.y=element_line(color="grey30",linewidth=.5, linetype=1),
+      plot.caption = element_text(hjust = 0)
+      ) +
+geom_vline(xintercept=0, color=2, linewidth=1) +
+geom_vline(xintercept=0.2006039154, color=3, linewidth=1) +
+geom_vline(xintercept=0.5654929356, color=3, linewidth=1) +
+scale_x_continuous(breaks=seq(0,.7,by=.1))
+```
+```{r, echo=FALSE, message=FALSE}
+#confint(gasprices_Price.Income_bootstrap, level=0.95)
+```
+
+# **1(C)**
+
+```{r, echo=FALSE, message=FALSE}
+gasprices_Price.Stoplight = do(10000)*diffmean(Price ~ Stoplight, data=resample(gasprices))
+
+ggplot(gasprices_Price.Stoplight, aes(x=diffmean)) +
+geom_histogram(fill="grey15") +
+labs(title=str_wrap("Bootstrap sampling distribution for difference in
+mean gas prices between gas stations with a stoplight infront and gas stations without a stoplight infront",width=60), x="Diffmean (Stoplight infront - no stoplight infront)", y="Frequency", caption="Claim: Gas stations at stoplights charge more.  \n\nEvidence: Based on the bootstrap sampling distribution I am 95% confident that the difference   \nin mean gas prices between gas stations with a stoplight infront and gas stations without   \na stoplight infront is between -0.038 and 0.030. The claim is not supported by the evidence   \nbecause 0 is within the confidence interval which describes that the confidence interval is   \nnot statistically significant.  \n\nConclusion: The theory is not supported, there is not enough evidence to suggest gas stations   \nat stoplights charge more.") +
+theme(panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank(),
+      panel.grid.major.y=element_line(color="grey30",linewidth=.5, linetype=1),
+      plot.caption = element_text(hjust = 0)
+      ) +
+geom_vline(xintercept=0, color=2, linewidth=1) +
+geom_vline(xintercept=-0.03826510063, color=3, linewidth=1) +
+geom_vline(xintercept=0.02983585002, color=3, linewidth=1) +
+scale_x_continuous(breaks=seq(-.1,.1,by=.01))
+```
+```{r, echo=FALSE, message=FALSE}
+#confint(gasprices_Price.Stoplight, level=0.95)
+```
+
+# **1(D)**
+
+```{r, echo=FALSE, message=FALSE}
+gasprices_Price.Highway = do(10000)*diffmean(Price ~ Highway, data=resample(gasprices))
+
+ggplot(gasprices_Price.Highway, aes(x=diffmean)) +
+geom_histogram(fill="grey15") +
+labs(title=str_wrap("Bootstrap sampling distribution for difference in
+mean gas prices between gas stations with highway access and gas stations without highway access",width=60), x="Diffmean (highway access - no highway access)", y="Frequency", caption="Claim: Gas stations with direct highway access charge more.  \n\nEvidence: Based on the bootstrap sampling distribution I am 95% confident that the   \ndifference in mean gas prices between gas stations with highway access and gas   \nstations without highway access is between 0.0093 and 0.081. The claim is supported   \nby the evidence because 0 is not within the confidence interval which describes  \nthat the confidence interval is statistically significant.  \n\nConclusion: The theory is supported, there is enough evidence to suggest gas   \nstations with direct highway access charge more.") +
+theme(panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank(),
+      panel.grid.major.y=element_line(color="grey30",linewidth=.5, linetype=1),
+      plot.caption = element_text(hjust = 0)
+      ) +
+geom_vline(xintercept=0, color=2, linewidth=1) +
+geom_vline(xintercept=0.009320655271, color=3, linewidth=1) +
+geom_vline(xintercept=0.08131752079, color=3, linewidth=1) +
+scale_x_continuous(breaks=seq(-.1,.1,by=.01))
+```
+```{r, echo=FALSE, message=FALSE}
+#confint(gasprices_Price.Highway, level=0.95)
+```
+
+# **1(E)**
+
+```{r, echo=FALSE, message=FALSE}
+gasprices_shellYN = mutate(gasprices, Shell = (Brand == "Shell"))
+gasprices_shellYN_bootstrap = do(10000)*diffmean(Price ~ Shell, data=resample(gasprices_shellYN))
+
+ggplot(gasprices_shellYN_bootstrap, aes(x=diffmean)) +
+geom_histogram(fill="grey15") +
+labs(title=str_wrap("Bootstrap sampling distribution for difference in
+mean gas prices between Shell brand gas stations and non Shell brand gas stations",width=60), x="Diffmean (Shell brand - non shell brand)", y="Frequency", caption="Claim: Shell charges more than all other non-shell brands.  \n\nEvidence: Based on the bootstrap sampling distribution I am 95% confident that the difference   \nin mean gas prices between shell brand gas stations and non shell brand gas stations is between   \n-0.0098 and 0.065. The claim is not supported by the evidence because 0 is within the confidence   \ninterval which describes that the confidence interval is not statistically significant.  \n\nConclusion: the theory is not supported, there is not enough evidence to suggest the Shell brand   \ncharges more than all other non-Shell brands.") +
+theme(panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank(),
+      panel.grid.major.y=element_line(color="grey30",linewidth=.5, linetype=1),
+      plot.caption = element_text(hjust = 0)
+      ) +
+geom_vline(xintercept=0, color=2, linewidth=1) +
+geom_vline(xintercept=-0.009780464307	, color=3, linewidth=1) +
+geom_vline(xintercept=0.06500046296	, color=3, linewidth=1) +
+scale_x_continuous(breaks=seq(-.1,.1,by=.01))
+```
+```{r, echo=FALSE, message=FALSE}
+#confint(gasprices_shellYN_bootstrap, level=0.95)
+```
+
+# **2(A)**
+
+```{r, echo=FALSE, message=FALSE}
+sclass_2011.63AMG = filter(sclass, year == 2011 & trim == "63 AMG")
+sclass_2011.63AMG_bootstrap = do(10000)*mean(resample(sclass_2011.63AMG$mileage))
+
+ggplot(sclass_2011.63AMG_bootstrap, aes(x=mean)) +
+geom_histogram(fill="grey15") +
+labs(title=str_wrap("Bootstrap sampling distribution for the average price of a 2011 Mercedes S-Class with a trim of 63 AMG",width=60), x="Average price", y="Frequency", caption="I am 95% confident that the average price of a 2011 Mercedes S-Class with a trim of 63 AMG is between   \n$26,267.88 and $31,725.97.") +
+theme(panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank(),
+      panel.grid.major.y=element_line(color="grey30",linewidth=.5, linetype=1),
+      plot.caption = element_text(hjust = 0)
+      ) +
+geom_vline(xintercept=26267.87823	, color=3, linewidth=1) +
+geom_vline(xintercept=31725.96616	, color=3, linewidth=1) +
+scale_x_continuous(breaks=seq(24000,35000,by=1000))
+```
+```{r, echo=FALSE, message=FALSE}
+#confint(sclass_2011.63AMG_bootstrap, level=0.95)
+```
+
+# **2(B)**
+
+```{r, echo=FALSE, message=FALSE}
+sclass_2014.550 = filter(sclass, year == 2014 & trim == "550")
+sclass_2014.550 = mutate(sclass_2014.550, isBlack = (color=="Black"))
+sclass_2014.550_bootstrap = do(10000)*prop(resample(sclass_2014.550$isBlack))
+
+ggplot(sclass_2014.550_bootstrap, aes(x=prop_TRUE)) +
+geom_histogram(fill="grey15") +
+labs(title=str_wrap("Bootstrap sampling distribution for the proportion of 2014 Mercedes S-Class with a trim of 550 that are black",width=60), x="Proportion of black vehicles", y="Frequency", caption="I am 95% confident that the proportion of Mercedes S-Class with a trim of 550 that are black is between   \n0.42 and 0.45.") +
+theme(panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank(),
+      panel.grid.major.y=element_line(color="grey30",linewidth=.5, linetype=1),
+      plot.caption = element_text(hjust = 0)
+      ) +
+geom_vline(xintercept=0.416060920	, color=3, linewidth=1) +
+geom_vline(xintercept=0.4527518172	, color=3, linewidth=1) +
+scale_x_continuous(breaks=seq(.4,.5,by=.01))
+```
+```{r, echo=FALSE, message=FALSE}
+#confint(sclass_2014.550_bootstrap, level=0.95)
+```
+
+# **3(A)**
+
+```{r, echo=FALSE, message=FALSE}
+nbc_Ed.Earl = filter(nbcPilotSurvey, Show == "Living with Ed" | Show == "My Name is Earl")
+nbc_Ed.Earl_diffmeanBootstrap = do(10000)*diffmean(Q1_Happy ~ Show, data=resample(nbc_Ed.Earl))
+
+ggplot(nbc_Ed.Earl_diffmeanBootstrap, aes(x=diffmean)) +
+geom_histogram(fill="grey15") +
+labs(title=str_wrap("Bootstrap sampling distribution for difference in
+mean happiness response (1-5) between the shows \"My Name is Earl\" and \"Living with Ed\"",width=60), x="Diffmean (My Name is Earl - Living with Ed)", y="Frequency", caption="Question: Is there evidence that one show consistently produces a higher mean Q1_Happy   \nresponse among viewers?  \n\nApproach: I first filtered the nbc data set to include only Earl and Ed. I then bootstrapped   \na sampling distribution of the difference in mean happiness responses between the   \nEarl and Ed shows. After that I constructed a histogram and confidence interval   \nto visualize and quantify the results.  \n\nResults: Based on my confidence interval I am 95% confident that the difference   \nin mean happiness response between the shows \"My Name is Earl\" and \"Living with Ed\"   \nis between -0.40 and 0.10.  \n\nConclusion: There is not enough evidence to suggest that either Earl or Ed consistently   \nproduced a higher mean Q1_Happy response. This is because 0 is within the confidence interval   \nwhich describes that the confidence interval is not statistically significant and suggests there is not   \nenough evidence that either Earl or Ed makes people happier.") +
+theme(panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank(),
+      panel.grid.major.y=element_line(color="grey30",linewidth=.5, linetype=1),
+      plot.caption = element_text(hjust = 0)
+      ) +
+geom_vline(xintercept=0, color=2, linewidth=1) +
+geom_vline(xintercept=-0.3972439234	, color=3, linewidth=1) +
+geom_vline(xintercept=0.1028416883	, color=3, linewidth=1) +
+scale_x_continuous(breaks=seq(-1,.5,by=.1))
+```
+```{r, echo=FALSE, message=FALSE}
+#confint(nbc_Ed.Earl_diffmeanBootstrap, level=0.95)
+```
+
+# **3(B)**
+
+```{r, echo=FALSE, message=FALSE}
+nbc_Loser.Apprentice = filter(nbcPilotSurvey, Show == "The Biggest Loser" | Show == "The Apprentice: Los Angeles")
+nbc_Loser.Apprentice_diffmeanBootstrap = do(10000)*diffmean(Q1_Annoyed ~ Show, data=resample(nbc_Loser.Apprentice))
+
+ggplot(nbc_Loser.Apprentice_diffmeanBootstrap, aes(x=diffmean)) +
+geom_histogram(fill="grey15") +
+labs(title=str_wrap("Bootstrap sampling distribution for difference in
+mean annoyance response (1-5) between the shows \"The Biggest Loser\" and \"The Apprentice: Los Angeles\"",width=60), x="Diffmean (The Biggest Loser - The Apprentice: Los Angeles)", y="Frequency", caption="Question: Is there evidence that one show consistently produces a higher mean Q1_Annoyed   \nresponse among viewers?  \n\nApproach: I first filtered the nbc data set to include only \"the Biggest Loser\" and   \n\"The Apprentice: Los Angeles\". I then bootstrapped a sampling distribution of   \nthe difference in mean annoyance response between the shows Loser and   \nApprentice. After that I constructed a histogram and confidence interval to   \nvisualize and quantify the results.  \n\nResults: Based on my confidence interval I am 95% confident that the difference   \nin mean annoyance response between the shows Loser and Apprentice is between   \n-0.52 and 0.013.  \n\nConclusion: There is not enough evidence to suggest that either the Show \"The Biggest Loser\"   \nor \"The Aprentice: Los Angeles\" consistently produces a higher mean Q1_Annoyed response   \namong viewers. This is because 0 is within the confidence interval which describes that the   \nconfidence interval is not statistically significant and suggests there is not enough evidence   \nthat either Loser or Apprentice makes people more annoyed.") +
+theme(panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank(),
+      panel.grid.major.y=element_line(color="grey30",linewidth=.5, linetype=1),
+      plot.caption = element_text(hjust = 0)
+      ) +
+geom_vline(xintercept=0, color=2, linewidth=1) +
+geom_vline(xintercept=-0.5155040655	, color=3, linewidth=1) +
+geom_vline(xintercept=-0.01336554235, color=3, linewidth=1) +
+scale_x_continuous(breaks=seq(-1,.5,by=.1))
+```
+```{r, echo=FALSE, message=FALSE}
+#confint(nbc_Loser.Apprentice_diffmeanBootstrap, level=0.95)
+```
+
+# **3(C)**
+
+```{r, echo=FALSE, message=FALSE}
+nbc_Stars = filter(nbcPilotSurvey, Show == "Dancing with the Stars")
+nbc_Stars = mutate(nbc_Stars, Confusing = (Q2_Confusing >= 4))
+nbc_Stars_bootstrap = do(10000)*prop(resample(nbc_Stars$Confusing))
+
+ggplot(nbc_Stars_bootstrap, aes(x=prop_TRUE)) +
+geom_histogram(fill="grey15",binwidth=0.0055) +
+labs(title=str_wrap("Bootstrap sampling distribution for the proportion of confused responses which were >= 4 for the show \"Dancing with the Stars\"",width=60), x="Proportion of confused responses >= 4", y="Frequency", caption="Question: What proportion of American TV watchers would we expect to give a response of 4   \nor greater to the \"Q2_Confusing\" question?  \n\nApproach: I first filtered the nbc data set to include only \"Dancing with the stars\". I then   \nbootstrapped a sampling distribution of the proportion of Q2_Confusing responses that were >=4. After that   \nI constructed a histogram and confidence interval to visualize and quantify the results.  \n\nResults: Based on my confidence interval I am 95% confident that the proportion of   \nQ2_Confusing responses that were >=4 is between 0.039 and 0.12.  \n\nConclusion: From this it is safe to say the vast majority did not think the show was confusing to the level   \nof a 4 or 5 response.") +
+theme(panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank(),
+      panel.grid.major.y=element_line(color="grey30",linewidth=.5, linetype=1),
+      plot.caption = element_text(hjust = 0)
+      ) +
+geom_vline(xintercept=0, color=2, linewidth=1) +
+geom_vline(xintercept=0.03867403315	, color=3, linewidth=1) +
+geom_vline(xintercept=0.1160220994	, color=3, linewidth=1) +
+scale_x_continuous(breaks=seq(-.1,.3,by=.01))
+```
+```{r, echo=FALSE, message=FALSE}
+#confint(nbc_Stars_bootstrap, level=0.95)
+```
+
+# **4(A)**
+
+```{r, echo=FALSE, message=FALSE}
+ebay_ratioAdded = mutate(ebay, revenueRatio = (rev_after/rev_before))
+ebay_ratioAdded_bootstrap = do(10000)*diffmean(revenueRatio ~ adwords_pause, data=resample(ebay_ratioAdded))
+
+ggplot(ebay_ratioAdded_bootstrap, aes(x=diffmean)) +
+geom_histogram(fill="grey15") +
+labs(title=str_wrap("Bootstrap sampling distribution for difference in mean ratio revenue after/before between advertising paused and advertising continued",width=60), x="Diffmean (advertising paused - advertising continued)", y="Frequency", caption="Question: Is there evidence that the revenue ratio is the same in the treatment and control groups?  \n(Treatment group - paused search advertising) (control group - continued search advertising)  \n\nApproach: I first created a new variable called \"revenueRatio\" which was calculated by dividing   \nrevenue after by revenue before. I then created a bootstrapped sampling distribution for the   \ndifference of means between the two control groups. After that I constructed a histogram   \nand confidence interval to visualize and quantifty the results \n\nResults: Based on my confidence interval I am 95% confident that the difference in mean   \nrevenue ratio between the two control groups is between -0.091 and -0.013.  \n\nConclusion: There is not enough evidence to suggest that the revenue ratio is the same in the   \ntreatment and control group. This is because 0 is not within the confidence interval which describes   \nthe confidence interval as statisticaly significant. More specifically the confidence interval contained   \nall negative values which in this case means there is enough evidence to suggest the advertisng   \npaused group had a smaller revenue ratio compared to the advertising continued group.") +
+theme(panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank(),
+      panel.grid.major.y=element_line(color="grey30",linewidth=.5, linetype=1),
+      plot.caption = element_text(hjust = 0)
+      ) +
+geom_vline(xintercept=0, color=2, linewidth=1) +
+geom_vline(xintercept=-0.09101916618	, color=3, linewidth=1) +
+geom_vline(xintercept=-0.01330399594	, color=3, linewidth=1) +
+scale_x_continuous(breaks=seq(-.2,.2,by=.02))
+```
+```{r, echo=FALSE, message=FALSE}
+#confint(ebay_ratioAdded_bootstrap, level=0.95)
+```
